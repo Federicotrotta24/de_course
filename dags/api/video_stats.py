@@ -115,7 +115,7 @@ def extract_videos_data(video_ids):
 
 @task
 def save_data_to_json(data):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d")
     filename = f"/opt/airflow/data/video_stats_{timestamp}.json"
 
     with open(filename, "w") as json_file:
