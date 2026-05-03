@@ -1,5 +1,9 @@
 # YouTube ELT Pipeline (Airflow + Docker + PostgreSQL)
 
+
+<img width="773" height="664" alt="project_architecture" src="https://github.com/user-attachments/assets/5b890697-3c31-48b6-9aa0-eebf672b203f" />
+
+
 ## Overview
 
 This project implements an end-to-end ELT (Extract, Load, Transform) data pipeline using modern data engineering tools.
@@ -57,6 +61,9 @@ The pipeline follows this structure:
 ---
 
 ## Orchestration (Airflow)
+
+<img width="1454" height="407" alt="Screenshot 2026-05-03 at 3 48 15 PM" src="https://github.com/user-attachments/assets/01859afa-615b-4efc-a776-4756036b0529" />
+
 
 The pipeline is orchestrated using Airflow and consists of three DAGs:
 
@@ -133,6 +140,4 @@ Checks include:
 ```bash
 docker compose up -d
 
-
-http://localhost:8080
 ```
