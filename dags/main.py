@@ -1,6 +1,7 @@
 from airflow import DAG
 from datetime import datetime, timedelta
 import pendulum
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 
 from datawarehouse.dwh import staging_table, core_table
 from dataquality.soda import yt_elt_data_quality
@@ -30,10 +31,13 @@ default_args = {
     # 'end_date': datetime(2030, 12, 31, tzinfo=local_tz),
 }
 
+#varables
 staging_schema = "staging"
 core_schema = "core"
 
 
+
+#Produce Json
 with DAG(
     dag_id="produce_json",
     default_args=default_args,
@@ -49,15 +53,23 @@ with DAG(
     extract_data = extract_videos_data(video_ids)
     save_to_json_task = save_data_to_json(extract_data)
     
+    
+    trigger_update_db = TriggerDagRunOperator(
+        task_id="trigger_update_db",
+        trigger_dag_id="update_db",
+    )
+    
     # Define dependencies
-    playlist_id >> video_ids >> extract_data >> save_to_json_task
+    playlist_id >> video_ids >> extract_data >> save_to_json_task>> trigger_update_db
 
 
+
+# Update DB
 with DAG(
     dag_id="update_db",
     default_args=default_args,
     description="DAG to process JSON file and update the staging and core tables in the data warehouse",
-    schedule="0 15 * * *",
+    schedule=None,
     catchup=False,
 ) as dag :
 
@@ -66,15 +78,20 @@ with DAG(
     update_staging = staging_table()
     update_core = core_table()
     
-    # Define dependencies
-    update_staging >> update_core
+    trigger_data_quality_checks = TriggerDagRunOperator(
+        task_id="trigger_data_quality_checks",
+        trigger_dag_id="data_quality_checks",
+    )   
     
+    # Define dependencies
+    update_staging >> update_core >> trigger_data_quality_checks
 
+# Data Quality Checks 
 with DAG(
     dag_id="data_quality_checks",
     default_args=default_args,
     description="DAG to check data quality ",
-    schedule="0 16 * * *",
+    schedule=None,
     catchup=False,
 ) as dag :
 
